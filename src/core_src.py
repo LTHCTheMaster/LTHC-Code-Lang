@@ -165,7 +165,7 @@ def endLineRespected(line : str) -> bool:
             print('Expected \';\' at the end of a normal instruction line')
             return False
     else:
-        return False
+        return True
 
 def buildCode(all_code_lines : list):
     out_res = []
