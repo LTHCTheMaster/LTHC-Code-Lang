@@ -6,6 +6,20 @@
 W_DEF = 'def'
 W_FOR = 'for'
 
+W_INT = 'int'
+W_FLOAT = 'float'
+
+W_PRINT = 'print'
+
+##############
+# Variables
+##############
+w_extendable = []
+int_var = []
+float_var = []
+methods = []
+var_name = []
+
 ############
 # Classes
 ############
@@ -148,6 +162,28 @@ class UpdateRepr:
         
         return out_res
 
+class IntVar:
+    def __init__(self, name : str, value : int = 0):
+        self.name = name
+        self.value = value
+    def setValue(self, value : int = 0):
+        self.value = value
+    def getValue(self) -> int:
+        return self.value
+    def getName(self) -> str:
+        return self.name
+
+class FloatVar:
+    def __init__(self, name : str, value : float = 0.0):
+        self.name = name
+        self.value = value
+    def setValue(self, value : float = 0.0):
+        self.value = value
+    def getValue(self) -> float:
+        return self.value
+    def getName(self) -> str:
+        return self.name
+
 ############
 # Methods
 ############
@@ -161,8 +197,7 @@ def endLineRespected(line : str) -> bool:
     if len(line) > 0:
         if line[-1] in ';^': 
             return True
-        else: 
-            print('Expected \';\' at the end of a normal instruction line')
+        else:
             return False
     else:
         return True
@@ -207,3 +242,47 @@ def buildCode(all_code_lines : list):
         index += 1
     
     return out_res, bstatus
+
+def intManage(line):
+    if '=' in line:
+        ls = line.split('=')
+        name = ls[0].replace(' ','')
+        isnamed = name in var_name
+        if isnamed:
+            return
+        else:
+            var_name.append(name)
+            int_var.append(IntVar(name, int(ls[1])))
+
+def floatManage(line):
+    if '=' in line:
+        ls = line.split('=')
+        name = ls[0].replace(' ','')
+        isnamed = name in var_name
+        if isnamed:
+            return
+        else:
+            var_name.append(name)
+            float_var.append(FloatVar(name, float(ls[1])))
+
+def interpret(code_obj):
+    if type(code_obj[1]) == Error:
+        print('  >>  >> This program has an error')
+        return
+    else:
+        for obj in code_obj[0]:
+            run_code(obj)
+
+def run_code(obj):
+    if type(obj) == NormalInstrRepr:
+        line = obj.getInstr().replace('\t','')
+        if hasKeyWord(line, W_INT):
+            print(line)
+            line = line[len(W_INT):len(line)]
+            print('int found')
+            intManage(line)
+        elif hasKeyWord(line, W_FLOAT):
+            print(line)
+            line = line[len(W_FLOAT):len(line)]
+            print('float found')
+            floatManage(line)
