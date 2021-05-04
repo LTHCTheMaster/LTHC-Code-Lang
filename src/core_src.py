@@ -200,7 +200,7 @@ def endLineRespected(line : str) -> bool:
         else:
             return False
     else:
-        return True
+        return False
 
 def buildCode(all_code_lines : list):
     out_res = []
@@ -265,24 +265,44 @@ def floatManage(line):
             var_name.append(name)
             float_var.append(FloatVar(name, float(ls[1])))
 
-def interpret(code_obj):
-    if type(code_obj[1]) == Error:
+def printManage(line):
+    if line[0] == '(':
+        if line[len(line)-1] == ')':
+            line = line[1:-1]
+            if line[0] == '"' and line[len(line)-1] == '"':
+                print(line[1:-1])
+            elif line[0] == "'" and line[len(line)-1] == "'":
+                print(line[1:-1])
+            else:
+                for i in int_var:
+                    if i.getName() == line:
+                        print(i.getValue())
+                for i in float_var:
+                    if i.getName() == line:
+                        print(i.getValue())
+
+def scanIf(main_obj):
+    if type(main_obj[1]) == Error:
         print('  >>  >> This program has an error')
+        main_obj[1].getError()
         return
     else:
-        for obj in code_obj[0]:
-            run_code(obj)
+        obj = main_obj[0]
+        interpret(obj)
+
+def interpret(code_obj):
+    for obj in code_obj:
+        run_code(obj)
 
 def run_code(obj):
     if type(obj) == NormalInstrRepr:
         line = obj.getInstr().replace('\t','')
         if hasKeyWord(line, W_INT):
-            print(line)
             line = line[len(W_INT):len(line)]
-            print('int found')
             intManage(line)
         elif hasKeyWord(line, W_FLOAT):
-            print(line)
             line = line[len(W_FLOAT):len(line)]
-            print('float found')
             floatManage(line)
+        elif hasKeyWord(line, W_PRINT):
+            line = line[len(W_PRINT):len(line)]
+            printManage(line)
