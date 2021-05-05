@@ -281,7 +281,7 @@ def printManage(line):
                     if i.getName() == line:
                         print(i.getValue())
 
-def scanIf(main_obj):
+def runCode(main_obj):
     if type(main_obj[1]) == Error:
         print('  >>  >> This program has an error')
         main_obj[1].getError()
@@ -292,11 +292,11 @@ def scanIf(main_obj):
 
 def interpret(code_obj):
     for obj in code_obj:
-        run_code(obj)
+        run_line(obj)
 
-def run_code(obj):
+def run_line(obj):
     if type(obj) == NormalInstrRepr:
-        line = obj.getInstr().replace('\t','')
+        line = obj.getInstr().replace('    ','')
         if hasKeyWord(line, W_INT):
             line = line[len(W_INT):len(line)]
             intManage(line)
@@ -306,3 +306,10 @@ def run_code(obj):
         elif hasKeyWord(line, W_PRINT):
             line = line[len(W_PRINT):len(line)]
             printManage(line)
+    elif type(obj) == ForRepr:
+        in_code = obj.getCode()
+        content = obj.getContent()
+        if 'range(' in content and content[len(content)-1] == ')':
+            looper = int(content.replace('range(','').replace(')',''))
+            for lp in range(looper):
+                interpret(in_code)
