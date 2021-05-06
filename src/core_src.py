@@ -140,6 +140,7 @@ class UpdateRepr:
         index = 0
         while index < len(all_code_lines):
             line = all_code_lines[index]
+            line = line.replace('    ','')
             already = False
 
             if hasKeyWord(line, W_FOR) and not already:
@@ -192,6 +193,12 @@ def hasKeyWord(line : str, keyword : str) -> bool:
         return True
     else: 
         return False
+
+def hasKeywordIn(line: str, keywords: list) -> bool:
+    for key in keywords:
+        if line[0:len(key)] == key:
+            return True
+    return False
 
 def endLineRespected(line : str) -> bool:
     if len(line) > 0:
@@ -249,7 +256,10 @@ def intManage(line):
         name = ls[0].replace(' ','')
         isnamed = name in var_name
         if isnamed:
-            return
+            for iv in int_var:
+                if iv.getName() == name:
+                    iv.setValue(int(ls[1]))
+                    return
         else:
             var_name.append(name)
             int_var.append(IntVar(name, int(ls[1])))
@@ -260,7 +270,10 @@ def floatManage(line):
         name = ls[0].replace(' ','')
         isnamed = name in var_name
         if isnamed:
-            return
+            for fv in float_var:
+                if fv.getName() == name:
+                    fv.setValue(float(ls[1]))
+                    return
         else:
             var_name.append(name)
             float_var.append(FloatVar(name, float(ls[1])))
@@ -277,9 +290,17 @@ def printManage(line):
                 for i in int_var:
                     if i.getName() == line:
                         print(i.getValue())
+                        return
                 for i in float_var:
                     if i.getName() == line:
                         print(i.getValue())
+                        return
+
+def methManage(line):
+    for i in range(len(w_extendable)):
+        if w_extendable[i] + '()' == line:
+            interpret(methods[i].getCode())
+            return
 
 def runCode(main_obj):
     if type(main_obj[1]) == Error:
@@ -306,6 +327,8 @@ def run_line(obj):
         elif hasKeyWord(line, W_PRINT):
             line = line[len(W_PRINT):len(line)]
             printManage(line)
+        elif hasKeywordIn(line, w_extendable):
+            methManage(line)
     elif type(obj) == ForRepr:
         in_code = obj.getCode()
         content = obj.getContent()
@@ -313,3 +336,6 @@ def run_line(obj):
             looper = int(content.replace('range(','').replace(')',''))
             for lp in range(looper):
                 interpret(in_code)
+    elif type(obj) == MethodRepr:
+        methods.append(obj)
+        w_extendable.append(obj.getName())

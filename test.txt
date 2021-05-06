@@ -1,3 +1,10 @@
-for range(5){
-    print('Hello world');
+def hw {
+    for range(5){
+        print('Hello world');
+    }
 }
+
+print('yo');
+hw();
+print('Yes');
+hw();
